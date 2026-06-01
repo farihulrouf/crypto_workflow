@@ -5,7 +5,6 @@
 *.so
 *.dylib
 main
-app
 
 # Test binary
 *.test
