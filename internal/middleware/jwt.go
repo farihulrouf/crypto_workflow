@@ -45,6 +45,13 @@ func JWT() fiber.Handler {
 			)
 		}
 
+		claims := token.Claims.(jwtlib.MapClaims)
+
+		c.Locals(
+			"user_id",
+			claims["user_id"],
+		)
+
 		return c.Next()
 	}
 }

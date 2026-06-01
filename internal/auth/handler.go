@@ -75,3 +75,14 @@ func (h *Handler) Login(
 		},
 	)
 }
+
+func (h *Handler) Profile(
+	c *fiber.Ctx,
+) error {
+
+	return c.JSON(
+		fiber.Map{
+			"user_id": c.Locals("user_id"),
+		},
+	)
+}

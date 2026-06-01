@@ -78,7 +78,7 @@ func (s *Service) Login(
 	}
 
 	token, err := jwt.GenerateToken(
-		user.Email,
+		user.ID.String(),
 		config.Get("JWT_SECRET"),
 	)
 

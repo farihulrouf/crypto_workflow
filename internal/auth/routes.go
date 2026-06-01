@@ -10,8 +10,19 @@ func RegisterRoutes(
 		"/register",
 		handler.Register,
 	)
+
 	router.Post(
 		"/login",
 		handler.Login,
+	)
+}
+
+func RegisterProtectedRoutes(
+	router fiber.Router,
+	handler *Handler,
+) {
+	router.Get(
+		"/profile",
+		handler.Profile,
 	)
 }

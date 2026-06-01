@@ -7,12 +7,12 @@ import (
 )
 
 func GenerateToken(
-	email string,
+	userID string,
 	secret string,
 ) (string, error) {
 
 	claims := jwtlib.MapClaims{
-		"email": email,
+		"user_id": userID,
 		"exp": time.Now().
 			Add(24 * time.Hour).
 			Unix(),
