@@ -4,10 +4,8 @@ import (
 	"log"
 
 	"crypto-flow/internal/app"
-	"crypto-flow/internal/auth"
 	"crypto-flow/internal/config"
 	"crypto-flow/internal/database"
-	"crypto-flow/internal/wallet"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -15,49 +13,63 @@ import (
 
 func main() {
 
+	// Load Environment
 	config.LoadEnv()
 
+	// Database Connection
 	db, err := database.Connect()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Auto Migrate
 	if err := database.Migrate(db); err != nil {
 		log.Fatal(err)
 	}
 
-	authRepo := auth.NewRepository(db)
-	authService := auth.NewService(authRepo)
-	authHandler := auth.NewHandler(authService)
+	// Dependency Container
+	container := app.NewContainer(db)
 
-	walletRepo := wallet.NewRepository(db)
-	walletService := wallet.NewService(walletRepo)
-	walletHandler := wallet.NewHandler(walletService)
-
+	// Fiber
 	appFiber := fiber.New()
 
+	// Middleware
 	appFiber.Use(cors.New())
 
-	appFiber.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-		})
-	})
-
-	app.RegisterRoutes(
-		appFiber,
-		authHandler,
-		walletHandler,
+	// Health Check
+	appFiber.Get(
+		"/health",
+		func(c *fiber.Ctx) error {
+			return c.JSON(
+				fiber.Map{
+					"status": "ok",
+				},
+			)
+		},
 	)
 
+	// Routes
+	app.RegisterRoutes(
+		appFiber,
+		container.AuthHandler,
+		container.WalletHandler,
+		container.LedgerHandler,
+	)
+
+	// Port
 	port := config.Get("APP_PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	log.Printf("Server running on :%s", port)
+	log.Printf(
+		"Server running on :%s",
+		port,
+	)
 
 	log.Fatal(
-		appFiber.Listen(":" + port),
+		appFiber.Listen(
+			":" + port,
+		),
 	)
 }

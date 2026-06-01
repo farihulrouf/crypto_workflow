@@ -2,6 +2,7 @@ package app
 
 import (
 	"crypto-flow/internal/auth"
+	"crypto-flow/internal/ledger"
 	"crypto-flow/internal/middleware"
 	"crypto-flow/internal/wallet"
 
@@ -12,19 +13,17 @@ func RegisterRoutes(
 	app *fiber.App,
 	authHandler *auth.Handler,
 	walletHandler *wallet.Handler,
+	ledgerHandler *ledger.Handler,
 ) {
 
 	api := app.Group("/api/v1")
 
-	// Public Routes
 	authGroup := api.Group("/auth")
-
 	auth.RegisterRoutes(
 		authGroup,
 		authHandler,
 	)
 
-	// Protected Routes
 	private := api.Group(
 		"/private",
 		middleware.JWT(),
@@ -38,5 +37,10 @@ func RegisterRoutes(
 	wallet.RegisterRoutes(
 		private,
 		walletHandler,
+	)
+
+	ledger.RegisterRoutes(
+		private,
+		ledgerHandler,
 	)
 }
